@@ -26,6 +26,15 @@ W_KEYWORD = 1
 KEYWORDS = ["urgent", "verify", "suspended", "password", "expires", "act now",
             "congratulations", "winner", "claim", "immediately", "gift card"]
 
+def sender_domain(address): #complete at slide 44, added for eliminate error for now
+    """Return the domain after the @ in an address, or None if there is no @."""
+    if address is None or address == "?":
+        return None
+    match = re.search("@([a-zA-Z0-9.-]+)", address)
+    if match is None:
+        return None
+    return match.group(1)
+
 def header(raw, name):
     """Return the value of the first "name:" header line, or "?" if there is none."""
     match = re.search(name +": (.*)", raw)
@@ -75,14 +84,12 @@ def check_mail(folder, flagged=None):
         if "spf=fail" in low or "dmarc=fail" in low:
             s = s + 2
         # reply-to different from from
-        try:
-            rt = re.search("Reply-To: (.*)", raw).group(1)
-            m1 = re.search("@([a-zA-Z0-9.-]+)", frm).group(1)
-            m2 = re.search("@([a-zA-Z0-9.-]+)", rt).group(1)
-            if m1 != m2:
-                s = s + 2
-        except:
-            pass
+
+        from_domain = sender_domain(frm)
+        reply_domain = sender_domain(header(raw, "Reply-To"))
+        if from_domain and reply_domain and from_domain != reply_domain:
+            s = s + W_REPLY_TO_MISMATCH
+
         scores[fn] = s
         if s >= PHISHING_THRESHOLD:
             verdicts.append((fn, "PHISHING", s))
