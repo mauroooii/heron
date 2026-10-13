@@ -90,7 +90,7 @@ def check_mail(folder, flagged=None):
 
     with open("results.txt", "w", encoding="utf-8") as out:
         out.write(str(verdicts))
-    
+
     print("flagged:", flagged)
     return verdicts
 
@@ -98,4 +98,8 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("usage: python triage.py <folder-with-eml-files>", file=sys.stderr)
         sys.exit(2)
-    check_mail(sys.argv[1])
+    try:
+        check_mail(sys.argv[1])
+    except FileNotFoundError:
+        print("error: no such folder: ", sys.argv[1], file=sys.stderr)
+        sys.exit(2)
