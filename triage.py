@@ -4,6 +4,23 @@ import re
 import os
 import sys
 
+#Points added by each indicator, and the score thresholds of each veridict.
+W_REPLY_TO_MISMATCH = 2
+
+W_AUTH_FAIL = 2
+
+W_BRAND_MISMATCH = 3
+
+PHISHING_THRESHOLD = 5
+
+SUSPICIOUS_THRESHOLD = 3
+
+W_PUNYCODE_LINK = 3
+
+W_IP_LINK = 3
+
+W_KEYWORD = 1
+
 scores = {}
 verdicts = []
 
@@ -33,7 +50,7 @@ def check_mail(folder, flagged=[]):
         urls = re.findall("https?://[^\\s\"'<>]+", raw)
         for u in urls:
             if re.match("https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+", u):
-                s = s + 3  # ip address url, very bad
+                s = s + W_IP_LINK
             if "xn--" in u:
                 s = s + 3
         # sender says paypal/microsoft/amazon but domain is weird
@@ -55,7 +72,7 @@ def check_mail(folder, flagged=[]):
         except:
             pass
         scores[fn] = s
-        if s >= 5:
+        if s >= PHISHING_THRESHOLD:
             verdicts.append((fn, "PHISHING", s))
             flagged.append(fn)
         elif s >= 3:
