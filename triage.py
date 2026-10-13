@@ -26,6 +26,13 @@ W_KEYWORD = 1
 KEYWORDS = ["urgent", "verify", "suspended", "password", "expires", "act now",
             "congratulations", "winner", "claim", "immediately", "gift card"]
 
+def header(raw, name):
+    """Return the value of the first "name:" header line, or "?" if there is none."""
+    match = re.search(name +": (.*)", raw)
+    if match is None:
+        return "?"
+    return match.group(1)
+
 def check_mail(folder, flagged=None):
     if flagged is None:
         flagged = []
